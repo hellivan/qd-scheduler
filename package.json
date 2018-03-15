@@ -2,6 +2,7 @@
   "name": "qd-scheduler",
   "version": "0.1.0",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "Ivan Hell",
   "license": "MIT",
   "repository": "https://github.com/hellivan/qd-scheduler",
