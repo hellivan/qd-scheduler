@@ -1,5 +1,14 @@
 import {BehaviorSubject, Observable, Subject} from 'rxjs/Rx';
 
+export class QueueFullError extends Error {
+    constructor() {
+        super('TaskQueue full. Cannot add new Tasks');
+        // NOTE: this work around is need because of:
+        // https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
+        Object.setPrototypeOf(this, QueueFullError.prototype);
+    }
+}
+
 export interface Task {
 
     exec: () => Promise<any>;
@@ -34,9 +43,9 @@ class TaskQueue<T extends Task> {
     }
     
     public push(t: T) {
-	if(this.full) throw new Error('TaskQueue full. Cannot add new Tasks');
-	this.tasks.push(t);
-	this.sizeSubject.next(this.tasks.length);
+        if(this.full) throw new QueueFullError();
+        this.tasks.push(t);
+        this.sizeSubject.next(this.tasks.length);
     }
 
     public pop(): T {
