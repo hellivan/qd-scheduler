@@ -1,4 +1,5 @@
-import {BehaviorSubject, Observable, Subject} from 'rxjs/Rx';
+import {BehaviorSubject, merge as observableMerge, Observable, of as observableOf, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 export class QueueFullError extends Error {
     constructor() {
@@ -115,10 +116,10 @@ export class QdScheduler<T extends Task> {
     }
 
     public start(): void {
-        Observable.merge(
-            this.taskCompletedSubject.map(x => true),
-            this.taskQueuedSubject.map(x => true),
-            Observable.of(true)
+        observableMerge(
+            this.taskCompletedSubject.pipe(map(x => true)),
+            this.taskQueuedSubject.pipe(map(x => true)),
+            observableOf(true)
         ).subscribe(
             () => this.executeTasks()
         );
