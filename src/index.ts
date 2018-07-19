@@ -26,20 +26,24 @@ class TaskQueue<T extends Task> {
         this.size$ = this.sizeSubject.asObservable();
     }
 
-    get size(): number {
+    public get size(): number {
         return this.tasks.length;
     }
 
-    get freeSlots(): number {
+    public get freeSlots(): number {
         return this.maxSize - this.size;
     }
 
-    get full(): boolean {
+    public get full(): boolean {
         return this.freeSlots < 1;
     }
 
-    get empty(): boolean {
+    public get empty(): boolean {
         return this.size < 1;
+    }
+
+    public setMaxSize(maxSize: number) {
+	this.maxSize = maxSize;
     }
     
     public push(t: T) {
@@ -83,8 +87,8 @@ export class QdScheduler<T extends Task> {
     public runningTasksCount$: Observable<number>;
 
     
-    constructor(parallelTasks: number = 10, maxQueuedTasks: number = 200) {
-        this.currentTasks =  new TaskQueue<T>(parallelTasks);
+    constructor(maxParallelTasks: number = 10, maxQueuedTasks: number = 200) {
+        this.currentTasks =  new TaskQueue<T>(maxParallelTasks);
         this.queuedTasks = new TaskQueue<T>(maxQueuedTasks);
 
         this.taskQueued$ = this.taskQueuedSubject.asObservable();
@@ -95,6 +99,14 @@ export class QdScheduler<T extends Task> {
         // TODO change this?
         this.queuedTasksCount$ = this.queuedTasks.size$;
         this.runningTasksCount$ = this.currentTasks.size$;
+    }
+
+    public setMaxParallelTasks(count: number) {
+	this.currentTasks.setMaxSize(count);
+    }
+
+    public setMaxQueuedTasks(count: number) {
+	this.queuedTasks.setMaxSize(count);
     }
 
     public queueTask(t: T): void {
